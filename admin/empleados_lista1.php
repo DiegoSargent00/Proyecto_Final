@@ -13,55 +13,16 @@ if (!isset($_SESSION['nombre'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listado de Empleados</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.0/cosmo/bootstrap.min.css">
-    <style>
-        .container {
-            margin-top: 50px;
-        }
-
-        .menu {
-            display: flex;
-            justify-content: center;
-            background-color: #007bff;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        .menu-items {
-            margin: 0 10px;
-        }
-
-        .menu-items a {
-            text-decoration: none;
-            color: #ffffff;
-            font-weight: bold;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .btn-crear {
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
-    
-<h2>Listado de Empleados</h2>
-
     <div class="container">
-        <div class="menu">
-            <div class="menu-items"><a class="btn btn-outline-light" href="bienvenido.php">Inicio</a></div>
-            <div class="menu-items"><a class="btn btn-outline-light" href="empleados_lista1.php">Empleados</a></div>
-            <div class="menu-items"><a class="btn btn-outline-light" href="productos_lista.php">Productos</a></div>
-            <div class="menu-items"><a class="btn btn-outline-light" href="pedidos_lista.php">Pedidos</a></div>
-            <div class="menu-items"><a class="btn btn-outline-light" href="cerrar_sesion.php">Salir</a></div>
+        <h2>Listado de Empleados</h2>
+        <?php include_once "funciones/bienvenido-template.php" ?>
+    </div>
+    <div class="container">     
+        <div style="text-align: left;">
+            <a class="btn btn-primary mb-3" href="empleados_alta.php">Crear nuevo registro</a>
         </div>
-       
-        <a class="btn btn-primary mb-3" href="empleados_alta.php">Crear nuevo registro</a>
-
         <table class="table table-striped">
             <thead>
                 <tr>
