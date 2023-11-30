@@ -96,6 +96,7 @@ if (!isset($_SESSION['nombre'])) {
                 <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*" required>
             </div>
             <button id="guardar" type="submit" class="btn btn-primary">Guardar Producto</button>
+            <a href="productos_lista.php" class="btn btn-secondary">Regresar a la Lista de Productos</a>
         </form>
         <div id="mensaje" class="alert mt-4" style="display: none;"></div>
 
@@ -108,8 +109,13 @@ if (!isset($_SESSION['nombre'])) {
                     success: function (response) {
                         if (response === "existe") {
                             $("#codigo-message").text("El código " + codigo + " ya existe.").removeClass("alert-success").addClass("alert-danger").show();
+                            $("#guardar").prop('disabled', true);
+                            setTimeout(function () {
+                            $("#correo-message").text("").hide();
+                        }, 5000);
                         } else {
                             $("#codigo-message").text("").hide();
+                            $("#guardar").prop('disabled', false);
                         }
                     }
                 });
@@ -121,65 +127,6 @@ if (!isset($_SESSION['nombre'])) {
                     verificarCodigo(codigo);
                 });
             });
-
-            function verificarCorreo(correo) {
-                var test;
-                $.ajax({
-                    type: "POST",
-                    url: "funciones/verificacion correo.php", 
-                    data: { correo: correo },
-                    success: function (response) {
-                        if (response === "existe") {
-                            $("#correo-message").text("El codigo de producto ya existe.").removeClass("alert-success").addClass("alert-danger").show();
-                            $("#guardar").prop('disabled', true);
-                            setTimeout(function () {
-                                $("#correo-message").text("").hide();
-                            }, 5000);
-                        } else {
-                            $("#correo-message").text("").hide();
-                            $("#guardar").prop('disabled', false);
-                        }
-                    }
-                });
-            }
-
-            function validar() {           
-                var nombre = $("#nombre").val();
-                var apellidos = $("#apellidos").val();
-                var correo = $("#correo").val();
-                var pass = $("#pass").val();
-                var rol = $("#rol").val();
-                var foto = $("#foto")[0].files[0];
-                var mensaje = $("#mensaje");
-                if (nombre !== "" && apellidos !== "" && correo !== "" && pass !== "" && rol > 0 && foto) {
-                    var formData = new FormData();
-                    formData.append('nombre', nombre);
-                    formData.append('apellidos', apellidos);
-                    formData.append('correo', correo);
-                    formData.append('pass', pass);
-                    formData.append('rol', rol);
-                    formData.append('foto', foto);
-
-                    $.ajax({
-                        type: "POST",
-                        url: "empleados_salva.php",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function (response) {
-                            mensaje.text("Empleado registrado exitosamente").removeClass("alert-danger").addClass("alert-success").show();
-                            setTimeout(function () {
-                                location.href = "empleados_lista1.php";
-                            }, 3000);
-                        }
-                    });
-                } else {
-                    mensaje.text("Error: Faltan campos por llenar").removeClass("alert-success").addClass("alert-danger").show();
-                    setTimeout(function () {
-                        mensaje.text("").hide();
-                    }, 5000);
-                }
-            }
         </script>
 
     </div>

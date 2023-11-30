@@ -1,5 +1,5 @@
 <?php
-    define("HOST", 'localhost');
+    define("HOST", 'localhost:3307');
     define("BD", 'empresa01');
     define("USER_BD", 'root');
     define("PASS_BD", '');

@@ -6,6 +6,7 @@ if (!isset($_SESSION['nombre'])) {
     exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -74,11 +75,11 @@ $stock = $row["stock"];
     <h2 class="title mt-5">Edición de Producto</h2>
 
     <div class="menu">
-    <div class="menu-items"><a class="btn btn-outline-light" href="bienvenido.php">Inicio</a></div>
-            <div class="menu-items"><a class="btn btn-outline-light" href="empleados_lista1.php">Empleados</a></div>
-            <div class="menu-items"><a class="btn btn-outline-light" href="productos_lista.php">Productos</a></div>
-            <div class="menu-items"><a class="btn btn-outline-light" href="pedidos_lista.php">Pedidos</a></div>
-            <div class="menu-items"><a class="btn btn-outline-light" href="cerrar_sesion.php">Salir</a></div>
+        <div class="menu-items"><a class="btn btn-outline-light" href="bienvenido.php">Inicio</a></div>
+        <div class="menu-items"><a class="btn btn-outline-light" href="empleados_lista1.php">Empleados</a></div>
+        <div class="menu-items"><a class="btn btn-outline-light" href="productos_lista.php">Productos</a></div>
+        <div class="menu-items"><a class="btn btn-outline-light" href="pedidos_lista.php">Pedidos</a></div>
+        <div class="menu-items"><a class="btn btn-outline-light" href="cerrar_sesion.php">Salir</a></div>
     </div>
 
     <form id="editProductForm" enctype="multipart/form-data">
@@ -89,6 +90,8 @@ $stock = $row["stock"];
         <div class="form-group">
             <label for="codigo">Código del Producto:</label>
             <input type="text" class="form-control" id="codigo" name="codigo" value="<?php echo $codigo; ?>" required>
+            <!-- Nuevo campo para mostrar mensajes de validación del código -->
+            <div id="codigo-message" class="error-message"></div>
         </div>
         <div class="form-group">
             <label for="descripcion">Descripción:</label>
@@ -115,41 +118,33 @@ $stock = $row["stock"];
 
 <script>
 $(document).ready(function () {
-    $('#updateButton').on('click', function () {
-        var nombre = $('#nombre').val();
-        var codigo = $('#codigo').val();
-        var descripcion = $('#descripcion').val();
-        var costo = $('#costo').val();
-        var stock = $('#stock').val();
-        var foto = $('#foto')[0].files[0];
-
-        if (nombre === '' || codigo === '' || descripcion === '' || costo === '' || stock === '') {
-            $('#mensaje').text('Faltan campos por llenar.').removeClass('alert-success').addClass('alert-danger').show();
-            setTimeout(function () {
-                $('#mensaje').text('').hide();
-            }, 5000);
-            return;
-        }
-
-        var formData = new FormData();
-        formData.append('id', <?php echo $id; ?>);
-        formData.append('nombre', nombre);
-        formData.append('codigo', codigo);
-        formData.append('descripcion', descripcion);
-        formData.append('costo', costo);
-        formData.append('stock', stock);
-        formData.append('foto', foto);
-
+    // Función para verificar el código en tiempo real
+    function verificarCodigo(codigo) {
         $.ajax({
-            type: 'POST',
-            url: 'productos_actualiza.php',
-            data: formData,
-            contentType: false,
-            processData: false,
+            type: "POST",
+            url: "funciones/verificacion_codigo.php",
+            data: { codigo: codigo },
             success: function (response) {
-                window.location.href = 'productos_lista.php';
+                if (response === "existe") {
+                    $("#codigo-message").text("El código " + codigo + " ya existe.").removeClass("alert-success").addClass("alert-danger").show();
+                    $("#updateButton").prop('disabled', true);
+                } else {
+                    $("#codigo-message").text("").hide();
+                    $("#updateButton").prop('disabled', false);
+                }
             }
         });
+    }
+
+    // Evento que se dispara al ingresar el código
+    $("#codigo").on("input", function () {
+        var codigo = $(this).val();
+        verificarCodigo(codigo);
+    });
+
+    // Resto de tu script actual para actualizar el producto
+    $('#updateButton').on('click', function () {
+        // ... (tu código actual para actualizar el producto) ...
     });
 });
 </script>
