@@ -5,6 +5,77 @@ if (!isset($_SESSION['nombre'])) {
     header("Location: index.php");
     exit();
 }
+
+require "funciones/conecta.php";
+$con = conecta();
+
+$id = $_GET["id"];
+$sql = "SELECT * FROM productos WHERE id = $id";
+$res = $con->query($sql);
+$row = $res->fetch_array();
+$nombre = $row["nombre"];
+$codigo = $row["codigo"];
+$descripcion = $row["descripcion"];
+$costo = $row["costo"];
+$stock = $row["stock"];
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $nombre = $_POST['nombre'];
+    $codigo = $_POST['codigo'];
+    $descripcion = $_POST['descripcion'];
+    $costo = $_POST['costo'];
+    $stock = $_POST['stock'];
+    
+    // Obtener el nombre de la imagen actual en la base de datos
+    $sqlImagenActual = "SELECT archivo FROM productos WHERE id = ?";
+    $stmtImagenActual = $con->prepare($sqlImagenActual);
+    $stmtImagenActual->bind_param("i", $id);
+    $stmtImagenActual->execute();
+    $stmtImagenActual->bind_result($imagenActual);
+    $stmtImagenActual->fetch();
+    $stmtImagenActual->close();
+
+    // Si se proporciona una nueva imagen, procesarla
+    if (!empty($_FILES['foto']['name'])) {
+        $file_name = $_FILES['foto']['name'];
+        $file_tmp = $_FILES['foto']['tmp_name'];
+        $arreglo = explode(".", $file_name);
+        $len = count($arreglo);
+        $pos = $len - 1;
+        $ext = $arreglo[$pos];
+        $dir = "archivos/"; 
+        $file_enc = md5_file($file_tmp);
+
+        $fileName1 = "$file_enc.$ext";
+        move_uploaded_file($file_tmp, $dir . $fileName1);
+
+        // Eliminar la imagen actual si existe
+        if (!empty($imagenActual)) {
+            unlink($dir . $imagenActual);
+        }
+    } else {
+        // Si no se proporciona una nueva imagen, conservar la imagen actual
+        $fileName1 = $imagenActual;
+    }
+
+    $sqlUpdate = "UPDATE productos SET nombre = ?, codigo = ?, descripcion = ?, costo = ?, stock = ?, archivo = ? WHERE id = ?";
+    $stmtUpdate = $con->prepare($sqlUpdate);
+
+    if ($stmtUpdate) {
+        $stmtUpdate->bind_param("ssssdsi", $nombre, $codigo, $descripcion, $costo, $stock, $fileName1, $id);
+
+        if ($stmtUpdate->execute()) {
+            // Éxito al actualizar la base de datos
+            header("Location: productos_lista.php");
+        } else {
+            echo "Error al actualizar el producto: " . $stmtUpdate->error;
+        }
+
+        $stmtUpdate->close();
+    } else {
+        echo "Error en la consulta SQL para actualizar producto.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -20,19 +91,6 @@ if (!isset($_SESSION['nombre'])) {
 
 <body>
 
-    <?php
-        require "funciones/conecta.php";
-        $con = conecta();
-        $id = $_GET["id"];
-        $sql = "SELECT * FROM productos WHERE id = $id";
-        $res = $con->query($sql);
-        $row = $res->fetch_array();
-        $nombre = $row["nombre"];
-        $codigo = $row["codigo"];
-        $descripcion = $row["descripcion"];
-        $costo = $row["costo"];
-        $stock = $row["stock"];
-    ?>
     <div class="container">
         <h2>Edición de Producto</h2>
         <?php include_once "funciones/bienvenido-template.php" ?>
@@ -40,7 +98,7 @@ if (!isset($_SESSION['nombre'])) {
 
     <div class="container">
         <div style="text-align: left">
-            <form id="editProductForm" enctype="multipart/form-data">
+            <form id="editProductForm" enctype="multipart/form-data" method="post">
                 <div class="form-group">
                     <input id="productoId" type="hidden" value="<?php echo $id; ?>" >
                     <label for="nombre">Nombre del Producto:</label>
@@ -68,7 +126,7 @@ if (!isset($_SESSION['nombre'])) {
                     <label for="foto">Imagen del Producto:</label>
                     <input type="file" name="foto" id="foto" accept="image/*">
                 </div>
-                <button type="button" class="btn btn-primary" id="updateButton">Actualizar</button>
+                <button type="submit" class="btn btn-primary" id="updateButton">Actualizar</button>
                 <a href="productos_lista.php" class="btn btn-secondary">Regresar</a>
             </form>
             <div id="mensaje" class="alert mt-4" style="display: none;"></div>
@@ -101,44 +159,6 @@ if (!isset($_SESSION['nombre'])) {
             $("#codigo").on("input", function () {
                 var codigo = $(this).val();
                 verificarCodigo(codigo);
-            });
-
-            // Resto de tu script actual para actualizar el producto
-            $('#updateButton').on('click', function () {
-                var nombre = $('#nombre').val();
-                var codigo = $('#codigo').val();
-                var descripcion = $('#descripcion').val();
-                var costo = $('#costo').val();
-                var stock = $('#stock').val();
-                var foto = $('#foto')[0].files[0];
-
-                if (nombre === '' || codigo === '' || descripcion === '' || costo === '' || stock === '') {
-                    $('#mensaje').text('Faltan campos por llenar.').removeClass('alert-success').addClass('alert-danger').show();
-                    setTimeout(function () {
-                        $('#mensaje').text('').hide();
-                    }, 5000);
-                    return;
-                }
-
-                var formData = new FormData();
-                formData.append('id', <?php echo $id; ?>);
-                formData.append('nombre', nombre);
-                formData.append('codigo', codigo);
-                formData.append('descripcion', descripcion);
-                formData.append('costo', costo);
-                formData.append('stock', stock);
-                formData.append('foto', foto);
-
-                $.ajax({
-                    type: 'POST',
-                    url: 'productos_actualiza.php',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        window.location.href = 'productos_lista.php';
-                    }
-                });
             });
         });
     </script>
