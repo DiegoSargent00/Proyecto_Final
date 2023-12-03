@@ -32,7 +32,7 @@
     <div class="menu-items"><a class="btn btn-outline-light" href="bienvenido.php">Inicio</a></div>
     <div class="menu-items"><a class="btn btn-outline-light" href="empleados_lista1.php">Empleados</a></div>
     <div class="menu-items"><a class="btn btn-outline-light" href="productos_lista.php">Productos</a></div>
-    <div class="menu-items"><a class="btn btn-outline-light" href="cerrar_sesion.php">Promociones</a></div>
+    <div class="menu-items"><a class="btn btn-outline-light" href="promocion_lista.php">Promociones</a></div>
     <div class="menu-items"><a class="btn btn-outline-light" href="pedidos_lista.php">Pedidos</a></div>
     <div class="menu-items"><a class="btn btn-outline-light" href="cerrar_sesion.php">Salir</a></div>
 </div>
