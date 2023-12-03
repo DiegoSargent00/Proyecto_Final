@@ -27,3 +27,6 @@ $nombre = $_SESSION['nombre'];
 </body>
 
 </html>
+
+//comentario 
+
