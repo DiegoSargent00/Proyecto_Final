@@ -67,8 +67,16 @@ if (!isset($_SESSION['nombre'])) {
                         type: "POST",
                         url: "promocion_elimina.php",
                         data: { id: id },
+                        dataType: "json",
                         success: function (response) {
-                            $("#fila" + response).remove();
+                            if (response.success) {
+                                $("#fila" + response.id).remove();
+                            } else {
+                                alert("Error al eliminar la promoción: " + response.error);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            alert("Error en la solicitud AJAX: " + error);
                         }
                     });
                 }
