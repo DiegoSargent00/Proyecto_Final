@@ -28,5 +28,4 @@ $nombre = $_SESSION['nombre'];
 
 </html>
 
-//comentario 
 
